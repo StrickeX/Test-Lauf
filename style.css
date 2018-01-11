@@ -51,6 +51,9 @@ body{margin:0;}
 .button3:hover {
 	background-color: #008CBA;
 }
+.blur{
+-webkit-filter:blur(3px);
+}
 
 img{
 	border-radius:20px;
