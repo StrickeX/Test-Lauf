@@ -14,4 +14,3 @@ back = function(){
 document.getElementById("container-reg").style.display = "none";
 document.getElementById("container-log").style.display = "flex";
 }
-$("#link").hide();
