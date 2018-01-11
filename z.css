@@ -6,7 +6,6 @@ body{margin:0;}
 	background-color: #555555;
 	text-align: center;
 	font-size: 20px;
-	cursor: pointer;
 	position:fixed;
   z-index:2;
 	top: 0;
@@ -14,6 +13,7 @@ body{margin:0;}
 
 .button1{
 	left:0;
+	cursor: pointer;
 }
 
 .button2{
@@ -23,6 +23,7 @@ body{margin:0;}
 }
 
 .button3{
+	cursor: pointer;
 	right:0;
 	padding: 45px 0px;
 	-webkit-appearance: button;
