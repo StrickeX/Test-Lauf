@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+	<title>WT_Projekt</title>
+    <meta charset="UTF-8">
+	<link rel="stylesheet" href="css/style.css">
+
+    <script src="https://www.gstatic.com/firebasejs/4.8.2/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+        apiKey: "AIzaSyC04-4YKtGkRpsA-9QHpTENaTzbhCSHB-M",
+        authDomain: "wt-projekt-hardware.firebaseapp.com",
+        databaseURL: "https://wt-projekt-hardware.firebaseio.com",
+        projectId: "wt-projekt-hardware",
+        storageBucket: "wt-projekt-hardware.appspot.com",
+        messagingSenderId: "440685921286"
+        };
+        firebase.initializeApp(config);
+	</script>
+    <script src="js/vue.js" ></script>
+    <script src="https://code.jquery.com/jquery-latest.js"></script>
+</head>
+<body>
+
+<!-- Banner-->
+<div id="vueBanner" class="button-group" style="width: 100%;">
+  <button v-on:click="home" class="button button1" style="width: 20%; "><img src="img/Logo.png" alt="Logo" id="logo" style="width:auto">
+  </button>
+  <button class="button button2" style="width: 60%;" disabled="disabled">{{titel}}</button>
+  <button v-on:click="log" v-show="loginbtn" class="button button3" id="b3" style="width: 20%">{{login}}</button>
+  <button v-show="logoutbtn" v-on:click="signout" class="button button3" id="b4" style="width: 20%;">{{logout}}</button>
+</div>
+
+
+
+
+
+<!-- login box -->
+<div v-show="showlogin" class="flex-container" id="container-log">
+    <div class="box">
+        <h1 class="link">Welcome</h1>
+        <br>
+        <input placeholder="Email.." v-model="emailval" v-on:keyup.enter="enter_email" id="email-in">
+        <br>
+        <input placeholder="Passwort.." v-model="passwortval" v-on:keyup.enter="enter_passwort"  id="pw-in">
+        <br>
+        <button id="log" class="btn" v-on:click="submit" type="submit">Login</button>
+        <br>
+        <p class="link" v-on:click="reg" style="margin-top: 100px;">Noch kein Account? Registrieren</p>
+    </div>
+</div>
+
+
+<!-- register box -->
+<div v-show="showregister" class="flex-container" id="container-reg">
+    <div class="box">
+        <h1 class="link">Account erstellen</h1>
+        <form>
+        <input v-model="vnameval" v-on:keyup.enter="focus_vname" id="vname" type="text" name="Vorname" placeholder="Vorname.."><br>
+        <input v-model="nnameval" v-on:keyup.enter="focus_nname" id="nname" type="text" name="Nachname" placeholder="Nachname.."><br>
+        <input v-model="emailval" v-on:keyup.enter="focus_email" id="email-create" type="text" name="Email" placeholder="Email.."><br>
+        <input v-model="passwortval" v-on:keyup.enter="focus_passwort" id="pw-create" type="text" name="Passwort" placeholder="Passwort.."><br>
+        </form>
+        <br>
+        <button id="reg" class="btn" v-on:click="create" type="submit">Bestätigen</button>
+        <br>
+        <p class="link" v-on:click="back">Zurück zum Login!</p>
+    </div>
+</div>
+
+
+
+<!--Input -->
+<div id="vueInput" class="hardwareBoxFlex" v-bind:class="{blur: blur}">
+	<div v-show="cover" v-on:click="home" class="cover"></div>
+<!-- Prozessor-->
+    <div  class="hardwareBox">
+        <div class="hardwareBoxHeading"><label>{{heading.prozessor}}</label></div>
+        <div class="hardwareBoxSelect">
+            <div ><button v-on:click="showIntelDropdown" class="crossbtn">x</button>  {{brand.intel}}
+                <br>
+                <button v-on:click="showAmdDropdown" class="crossbtn">x</button>  {{brand.amd}}</div>
+            <div v-show="checkintel" >
+                <button v-on:click="ausrollen(1)" class="dropbtn">{{brand.intel}}</button>
+                <div v-show="content.c_1" class="dropdown-content">
+                    <p v-on:click="anzeigen(heading.prozessor, brand.intel, prozessorIntel.a1)"> 
+                    {{prozessorIntel.a1}}</p>
+                    <p v-on:click="anzeigen(heading.prozessor, brand.intel, prozessorIntel.b2)">
+                    {{prozessorIntel.b2}}</p>
+                    <p v-on:click="anzeigen(heading.prozessor, brand.intel, prozessorIntel.c3)">
+                    {{prozessorIntel.c3}}</p>
+                    <p v-on:click="anzeigen(heading.prozessor, brand.intel, prozessorIntel.d4)">
+                    {{prozessorIntel.d4}}</p>
+                    <p v-on:click="anzeigen(heading.prozessor, brand.intel, prozessorIntel.e5)">
+                    {{prozessorIntel.e5}}</p>
+                    <p v-on:click="anzeigen(heading.prozessor, brand.intel, prozessorIntel.f6)">
+                    {{prozessorIntel.f6}}</p>
+                </div>
+            </div>
+            <div v-show="checkamd" >
+                <button v-on:click="ausrollen(1)" class="dropbtn">{{brand.amd}}</button>
+                <div v-show="content.c_1" class="dropdown-content">
+                    <p v-on:click="anzeigen(heading.prozessor, brand.amd, prozessorAmd.a1)">{{prozessorAmd.a1}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.prozessor, brand.amd, prozessorAmd.b2)">{{prozessorAmd.b2}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.prozessor, brand.amd, prozessorAmd.c3)">{{prozessorAmd.c3}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.prozessor, brand.amd, prozessorAmd.d4)">{{prozessorAmd.d4}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.prozessor, brand.amd, prozessorAmd.e5)">{{prozessorAmd.e5}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.prozessor, brand.amd, prozessorAmd.f6)">{{prozessorAmd.f6}}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="hardwareBoxOutput"><span>Ausgewählt: </span>
+            <span><b>{{inhalt.prozessor}}</b></span>     
+        </div>
+	</div>
+	<br>
+<!-- Arbeitsspeicher-->
+	<div class="hardwareBox">
+        <div class="hardwareBoxHeading"><label>{{heading.arbeitsspeicher}}</label></div>
+        <div class="hardwareBoxSelect">
+            <div><button v-on:click="showDDR4_2133Dropdown" class="crossbtn">x</button>  {{brand.ddr4_2133}}
+                <br>
+                <button v-on:click="showDDR4_3466Dropdown" class="crossbtn">x</button>  {{brand.ddr4_3466}}</div>
+            <div v-show="checkddr4_2133" >
+                <button v-on:click="ausrollen(2)" class="dropbtn">{{brand.ddr4_2133}}</button>
+                <div v-show="content.c_2" class="dropdown-content">
+                    <p v-on:click="anzeigen(heading.arbeitsspeicher, brand.ddr4_2133, arbeitsspeicherDDR4_2133.a1)"> 
+                    {{arbeitsspeicherDDR4_2133.a1}}</p>
+                    <p v-on:click="anzeigen(heading.arbeitsspeicher, brand.ddr4_2133, arbeitsspeicherDDR4_2133.b2)">
+                    {{arbeitsspeicherDDR4_2133.b2}}</p>
+                    <p v-on:click="anzeigen(heading.arbeitsspeicher, brand.ddr4_2133, arbeitsspeicherDDR4_2133.c3)">
+                    {{arbeitsspeicherDDR4_2133.c3}}</p>
+                </div>
+            </div>
+            <div v-show="checkddr4_3466" >
+                <button v-on:click="ausrollen(2)" class="dropbtn">{{brand.ddr4_3466}}</button>
+                <div v-show="content.c_2" class="dropdown-content">
+                    <p v-on:click="anzeigen(heading.arbeitsspeicher, brand.ddr4_3466, arbeitsspeicherDDR4_3466.a1)">{{arbeitsspeicherDDR4_3466.a1}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.arbeitsspeicher, brand.ddr4_3466, arbeitsspeicherDDR4_3466.b2)">{{arbeitsspeicherDDR4_3466.b2}}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="hardwareBoxOutput"><span>Ausgewählt: </span>
+            <span><b>{{inhalt.arbeitsspeicher}}</b></span>     
+        </div>
+    </div>
+    <br>
+<!--Grafikkarte-->
+	<div class="hardwareBox">
+        <div class="hardwareBoxHeading"><label>{{heading.grafikkarte}}</label></div>
+        <div class="hardwareBoxSelect">
+            <div><button v-on:click="showNvidiaDropdown" class="crossbtn">x</button>  {{brand.nvidia}}
+                <br>
+                <button v-on:click="showRadeonDropdown" class="crossbtn">x</button>  {{brand.radeon}}</div>
+            <div v-show="checknvidia" >
+                <button v-on:click="ausrollen(3)" class="dropbtn">{{brand.nvidia}}</button>
+                <div v-show="content.c_3" class="dropdown-content">
+                    <p v-on:click="anzeigen(heading.grafikkarte, brand.nvidia, grafikkarteNvidia.a1)"> 
+                    {{grafikkarteNvidia.a1}}</p>
+                    <p v-on:click="anzeigen(heading.grafikkarte, brand.nvidia, grafikkarteNvidia.b2)">
+                    {{grafikkarteNvidia.b2}}</p>
+                    <p v-on:click="anzeigen(heading.grafikkarte, brand.nvidia, grafikkarteNvidia.c3)">
+                    {{grafikkarteNvidia.c3}}</p>
+                    <p v-on:click="anzeigen(heading.grafikkarte, brand.nvidia, grafikkarteNvidia.d4)">
+                    {{grafikkarteNvidia.d4}}</p>
+                    <p v-on:click="anzeigen(heading.grafikkarte, brand.nvidia, grafikkarteNvidia.e5)">
+                    {{grafikkarteNvidia.e5}}</p>
+                    <p v-on:click="anzeigen(heading.grafikkarte, brand.nvidia, grafikkarteNvidia.f6)">
+                    {{grafikkarteNvidia.f6}}</p>
+                </div>
+            </div>
+            <div v-show="checkradeon" >
+                <button v-on:click="ausrollen(3)" class="dropbtn">{{brand.radeon}}</button>
+                <div v-show="content.c_3" class="dropdown-content">
+                    <p v-on:click="anzeigen(heading.grafikkarte, brand.radeon, grafikkarteRadeon.a1)">{{grafikkarteRadeon.a1}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.grafikkarte, brand.radeon, grafikkarteRadeon.b2)">{{grafikkarteRadeon.b2}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.grafikkarte, brand.radeon, grafikkarteRadeon.c3)">{{grafikkarteRadeon.c3}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.grafikkarte, brand.radeon, grafikkarteRadeon.d4)">{{grafikkarteRadeon.d4}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.grafikkarte, brand.radeon, grafikkarteRadeon.e5)">{{grafikkarteRadeon.e5}}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="hardwareBoxOutput"><span>Ausgewählt: </span>
+            <span><b>{{inhalt.grafikkarte}}</b></span>
+        </div>
+    </div>
+    <br>
+<!--HDD-->
+    <div class="hardwareBox">
+        <div class="hardwareBoxHeading"><label>{{heading.hdd}}</label></div>
+        <div class="hardwareBoxSelect">
+            <div><button v-on:click="showWDDropdown" class="crossbtn">x</button>  {{brand.wd}}
+                <br>
+                <br></div>
+            <div v-show="checkWD" >
+                <button v-on:click="ausrollen(4)" class="dropbtn">{{brand.wd}}</button>
+                <div v-show="content.c_4" class="dropdown-content">
+                    <p v-on:click="anzeigen(heading.hdd, brand.wd, hddWD.a1)"> 
+                    {{hddWD.a1}}</p>
+                    <p v-on:click="anzeigen(heading.hdd, brand.wd, hddWD.b2)">
+                    {{hddWD.b2}}</p>
+                    <p v-on:click="anzeigen(heading.hdd, brand.wd, hddWD.c3)">
+                    {{hddWD.c3}}</p>
+                    <p v-on:click="anzeigen(heading.hdd, brand.wd, hddWD.d4)">
+                    {{hddWD.d4}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="hardwareBoxOutput"><span>Ausgewählt: </span>
+            <span><b>{{inhalt.hdd}}</b></span>
+        </div>
+    </div>
+    <br>
+<!-- Mainboard-->
+<div class="hardwareBox">
+        <div class="hardwareBoxHeading"><label>{{heading.mainboard}}</label></div>
+        <div class="hardwareBoxSelect">
+            <div><button v-on:click="showIntel_mDropdown" class="crossbtn">x</button>  {{brand.intel_m}}
+                <br>
+                <button v-on:click="showAmd_mDropdown" class="crossbtn">x</button>  {{brand.amd_m}}</div>
+            <div v-show="checkintel_m" >
+                <button v-on:click="ausrollen(5)" class="dropbtn">{{brand.intel_m}}</button>
+                <div v-show="content.c_5" class="dropdown-content">
+                    <p v-on:click="anzeigen(heading.mainboard, brand.intel_m, mainboardIntel.a1)"> 
+                    {{mainboardIntel.a1}}</p>
+                    <p v-on:click="anzeigen(heading.mainboard, brand.intel_m, mainboardIntel.b2)">
+                    {{mainboardIntel.b2}}</p>
+                    <p v-on:click="anzeigen(heading.mainboard, brand.intel_m, mainboardIntel.c3)">
+                    {{mainboardIntel.c3}}</p>
+                    <p v-on:click="anzeigen(heading.mainboard, brand.intel_m, mainboardIntel.d4)">
+                    {{mainboardIntel.d4}}</p>
+                    <p v-on:click="anzeigen(heading.mainboard, brand.intel_m, mainboardIntel.e5)">
+                    {{mainboardIntel.e5}}</p>
+                </div>
+            </div>
+            <div v-show="checkamd_m" >
+                <button v-on:click="ausrollen(5)" class="dropbtn">{{brand.amd_m}}</button>
+                <div v-show="content.c_5" class="dropdown-content">
+                    <p v-on:click="anzeigen(heading.mainboard, brand.amd_m, mainboardAMD.a1)">{{mainboardAMD.a1}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.mainboard, brand.amd_m, mainboardAMD.b2)">{{mainboardAMD.b2}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.mainboard, brand.amd_m, mainboardAMD.c3)">{{mainboardAMD.c3}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.mainboard, brand.amd_m, mainboardAMD.d4)">{{mainboardAMD.d4}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.mainboard, brand.amd_m, mainboardAMD.e5)">{{mainboardAMD.e5}}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="hardwareBoxOutput"><span>Ausgewählt: </span>
+            <span><b>{{inhalt.mainboard}}</b></span>
+        </div>
+    </div>    
+    <br>
+<!-- Netzteil -->
+	<div class="hardwareBox">
+        <div class="hardwareBoxHeading"><label>{{heading.netzteil}}</label></div>
+        <div class="hardwareBoxSelect">
+            <div><button v-on:click="showBequietDropdown" class="crossbtn">x</button>  {{brand.bequiet}}
+                <br>
+                <br></div>
+            <div v-show="checkbequiet" >
+                <button v-on:click="ausrollen(6)" class="dropbtn">{{brand.bequiet}}</button>
+                <div v-show="content.c_6" class="dropdown-content">
+                    <p v-on:click="anzeigen(heading.netzteil, brand.bequiet, netzteilBequiet.a1)"> 
+                    {{netzteilBequiet.a1}}</p>
+                    <p v-on:click="anzeigen(heading.netzteil, brand.bequiet, netzteilBequiet.b2)">
+                    {{netzteilBequiet.b2}}</p>
+                    <p v-on:click="anzeigen(heading.netzteil, brand.bequiet, netzteilBequiet.c3)">
+                    {{netzteilBequiet.c3}}</p>
+                    <p v-on:click="anzeigen(heading.netzteil, brand.bequiet, netzteilBequiet.d4)">
+                    {{netzteilBequiet.d4}}</p>
+                    <p v-on:click="anzeigen(heading.netzteil, brand.bequiet, netzteilBequiet.e5)">
+                    {{netzteilBequiet.e5}}</p>
+                </div>
+            </div>            
+        </div>
+        <div class="hardwareBoxOutput"><span>Ausgewählt: </span>
+            <span><b>{{inhalt.netzteil}}</b></span>
+        </div>
+    </div>
+    <br>
+<!-- SSD-->
+<div class="hardwareBox">
+        <div class="hardwareBoxHeading"><label class="hardwareBoxHeading">{{heading.ssd}}</label></div>
+        <div class="hardwareBoxSelect">
+            <div><button v-on:click="showSATADropdown" class="crossbtn">x</button>  {{brand.sata}}
+                <br>
+                <button v-on:click="showM2Dropdown" class="crossbtn">x</button>  {{brand.m2}}</div>
+            <div v-show="checksata">
+                <button v-on:click="ausrollen(7)" class="dropbtn">{{brand.sata}}</button>
+                <div v-show="content.c_7" class="dropdown-content">
+                    <p v-on:click="anzeigen(heading.ssd, brand.sata, ssdSATA.a1)"> 
+                    {{ssdSATA.a1}}</p>
+                    <p v-on:click="anzeigen(heading.ssd, brand.sata, ssdSATA.b2)">
+                    {{ssdSATA.b2}}</p>
+                    <p v-on:click="anzeigen(heading.ssd, brand.sata, ssdSATA.c3)">
+                    {{ssdSATA.c3}}</p>
+                    <p v-on:click="anzeigen(heading.ssd, brand.sata, ssdSATA.d4)">
+                    {{ssdSATA.d4}}</p>
+                    <p v-on:click="anzeigen(heading.ssd, brand.sata, ssdSATA.e5)">
+                    {{ssdSATA.e5}}</p>
+                </div>
+            </div>
+            <div v-show="checkm2">
+                <button v-on:click="ausrollen(7)" class="dropbtn">{{brand.m2}}</button>
+                <div v-show="content.c_7" class="dropdown-content">
+                    <p v-on:click="anzeigen(heading.ssd, brand.m2, ssdM2.a1)">{{ssdM2.a1}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.ssd, brand.m2, ssdM2.b2)">{{ssdM2.b2}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.ssd, brand.m2, ssdM2.c3)">{{ssdM2.c3}}
+                    </p>
+                    <p v-on:click="anzeigen(heading.ssd, brand.m2, ssdM2.d4)">{{ssdM2.d4}}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="hardwareBoxOutput"><span>Ausgewählt: </span>
+            <span><b>{{inhalt.ssd}}</b></span>
+        </div>
+    </div>
+    <br>
+    <button v-on:click="showliste" class="button button4">Gesamtwert berechnen</button>
+</div>
+<!--Vue Listen Box --> 
+<div v-show="showliste" id="liste" class="flex-container">
+    <div id="Liste" style="padding: 20px;">   
+        <h1 class="link">Gesamtpreisberechnung</h1>
+        <div style="display: flex;">
+        <span>Prozessor: </span>
+        <span>{{ inhalt.prozessor }}</span><img v-bind:src="'./img/hardware/Prozessor/' + bild.prozessor"
+        alt="" style="height: 40px; width: 40px;">
+    </div><br>
+    <div style="display: flex;">
+        <span>Arbeisspeicher: </span>
+        <span>{{ inhalt.arbeitsspeicher }}</span><img v-bind:src="'./img/hardware/Arbeitsspeicher/' + bild.arbeitsspeicher"
+        alt="" style="height: 40px; width: 40px;">
+    </div><br>
+        <div style="display: flex;">
+        <span>Grafikkarte: </span>
+        <span>{{ inhalt.grafikkarte }}</span><img v-bind:src="'./img/hardware/Grafikkarte/' + bild.grafikkarte"
+        alt="" style="height: 40px; width: 40px;">
+    </div><br>
+    <div style="display: flex;">
+        <span>HDD: </span>
+        <span>{{ inhalt.hdd }}</span><img v-bind:src="'./img/hardware/HDD/' + bild.hdd"
+        alt="" style="height: 40px; width: 40px;">
+    </div><br>
+    <div style="display: flex;">
+        <span>Mainboard: </span>
+        <span>{{ inhalt.mainboard }}</span><img v-bind:src="'./img/hardware/Mainboard/' + bild.mainboard"
+        alt="" style="height: 40px; width: 40px;">
+    </div><br>
+    <div style="display: flex;">
+        <span>Netzeil: </span>
+        <span>{{ inhalt.netzteil }}</span><img v-bind:src="'./img/hardware/Netzteil/' + bild.netzteil"
+        alt="" style="height: 40px; width: 40px;">
+    </div><br>
+    <div style="display: flex;">
+        <span>SSD: </span>
+        <span>{{ inhalt.ssd }}</span><img v-bind:src="'./img/hardware/SSD/' + bild.ssd"
+        alt="" style="height: 40px; width: 40px;">
+    </div><br>
+        <span>Gesamtwert: </span>
+        <span>{{gesamtwert}}</span>
+    </div>
+</div>
+
+
+
+
+<!-- Javascript-->
+<script>
+//Vue Banner
+var vueBanner = new Vue({
+	el: '#vueBanner',
+  data: {
+  	titel: "PC Hardware comparison",
+    login: "Login",
+    logout: "Logout",
+    logoutbtn: false,
+    loginbtn: true
+  },
+  methods: {
+  	log: function(){
+    	vueLogin.showlogin = true;
+        vueInput.blur = true;
+        vueInput.cover = true;
+        vueRegister.showregister = false;
+    	},
+    home: function(){
+    	vueLogin.showlogin = false;
+        vueRegister.showregister = false;
+        vueInput.cover = false;
+        vueInput.blur = false;
+        vueListe.showliste = false;
+    	},
+    signout: function(){
+    	firebase.auth().signOut().then(function() {
+            // Sign-out successful.
+    		}).catch(function(error) {
+            // An error happened.
+  		    var errorCode = error.code;
+        	var errorMessage = error.message;
+		    alert(errorMessage);
+		    });
+        }   
+    },
+  mounted: function(){
+      firebase.auth().onAuthStateChanged(function(user) {
+          if (user) {
+          // User is signed in.
+          vueBanner.loginbtn = false;
+          vueBanner.logoutbtn = true;
+          vueLogin.showlogin = false;
+          vueRegister.showregister = false;
+          vueInput.cover = false;
+          vueInput.blur = false;   
+          } else {
+          // No user is signed in.
+          vueBanner.loginbtn = true;
+          vueBanner.logoutbtn = false;
+          }
+        });
+    }
+})
+
+
+// Vue Login
+var vueLogin = new Vue({
+  el: '#container-log',
+  data: {
+    showlogin:false,
+    emailval: "",
+    passwortval: ""
+    },
+  methods: {
+    enter_email: function(){$('#pw-in').focus()},
+    enter_passwort: function(){$('#log').focus()},
+    reg: function(){
+    this.showlogin = false;
+    vueRegister.showregister = true;
+    },
+    submit: function(){
+    var email = this.emailval;
+    var passwort = this.passwortval;
+    
+    if(passwort != "" && email != ""){
+      firebase.auth().signInWithEmailAndPassword(email, passwort).catch(function(error) {
+     // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+     alert(errorMessage);
+        // ...
+        });
+    };
+    }
+  }
+})
+
+
+// Vue Register
+var vueRegister = new Vue({
+  el: '#container-reg',
+  data: {
+    vnameval: "",
+    nnameval: "",
+    emailval: "",
+    passwortval: "",
+    showregister: false
+    },
+  methods: {
+    focus_vname: function(){$('#nname').focus()},
+    focus_nname: function(){$('#email-create').focus()},
+    focus_email: function(){$('#pw-create').focus()},
+    focus_passwort: function(){$('#reg').focus()},
+    back: function(){
+      this.showregister = false;
+      vueLogin.showlogin = true;
+      },
+    create: function(){
+      var vname = this.vnameval;
+      var nname = this.nnameval;
+      var email = this.emailval;
+      var passwort = this.passwortval;
+      if(vname != "" && nname != "" && email != "" && passwort != ""){
+      firebase.auth().createUserWithEmailAndPassword(email, passwort).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      var errorMessage = error.message;
+       alert(errorMessage);
+       // ...
+      });
+      firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+       // User is signed in.
+   
+       var email2 = email.replace(".", ",");
+       var database = firebase.database().ref("users/");
+       database.update({[email2]:{"Vorname": vname, "Nachname": nname}
+        });
+       
+      vueLogin.showlogin = false;
+      vueRegister.showregister = false;
+      vueInput.cover = false;
+      vueInput.blur = false;
+        } else {
+        // No user is signed in.
+    
+        }
+        });
+      }
+    }
+  }
+})
+
+
+//Vue Input
+var vueInput = new Vue({
+  el: '#vueInput',
+  data:{
+    heading: {
+    prozessor: "Prozessor",
+    hdd: "HDD",
+    ssd: "SSD",
+    mainboard: "Mainboard",
+    grafikkarte: "Grafikkarte",
+    netzteil: "Netzteil",
+    arbeitsspeicher: "Arbeitsspeicher"
+    },
+    brand: {
+    intel: "Intel",
+    amd: "AMD",
+    ddr4_2133: "DDR4 2133",
+    ddr4_3466: "DDR4 3466",
+    nvidia: "Nvidia",
+    radeon: "Radeon",
+    wd: "WD",
+    intel_m: "Intel",
+    amd_m: "AMD",
+    bequiet: "BeQuiet",
+    sata: "SATA",
+    m2 :"M2"
+	},
+    prozessorIntel: {
+        a1:"i3 8100",
+        b2:"i3 8350k",
+        c3:"i5 8400",
+        d4:"i5 8600k",
+        e5:"i7 8700",
+        f6:"i7 8700k"
+    },
+    prozessorAmd: {
+        a1:"Ryzen 3 1200",
+        b2:"Ryzen 3 1300X",
+        c3:"Ryzen 5 1400",
+        d4:"Ryzen 5 1600X",
+        e5:"Ryzen 7 1700",
+        f6:"Ryzen 7 1800X"
+    },
+    arbeitsspeicherDDR4_2133:{
+        a1:"16GB Corsair",
+        b2:"4GB HyperX Fury",
+        c3:"8GB G Skill"
+    },
+    arbeitsspeicherDDR4_3466:{
+        a1:"16GB Corsair",
+        b2:"32GB G Skill"
+    },
+    grafikkarteNvidia:{
+    	a1: "11GB MSI GeForce GTX 1080 Ti GAMING X 11G",
+    	b2: "4GB Gigabyte GeForce GTX 1050 Ti OC 4G",
+    	c3: "6GB Gainward GeForce GTX 1060",
+    	d4: "8GB Gigabyte GeForce GTX 1070 Ti Windforce",
+    	e5: "8GB KFA2 GeForce GTX 1080 EX OC Edition",
+    	f6: "8GB Palit GeForce GTX 1070 GameRock"
+    },
+    grafikkarteRadeon:{
+    	a1: "2GB Gigabyte Radeon RX 550",
+    	b2: "4GB Asus Radeon RX 560 ROG Strix O4G Gaming",
+    	c3: "4GB Asus Radeon RX 570 Expedition OC",
+    	d4: "4GB MSI Radeon RX 460 4G OC",
+    	e5: "8GB PowerColor Radeon RX 580 Red Dragon V2"
+    },
+    hddWD:{
+    	a1: "1000GB WD Blue WD10EZEX 64MB",
+    	b2: "2000GB WD Red WD20EFRX 64MB",
+    	c3: "3000GB WD Red WD30EFRX 64MB",
+    	d4: "4000GB WD Red WD40EFRX 64MB"
+    },
+    mainboardAMD:{
+    	a1: "Asus Prime B350-Plus AMD B350",
+    	b2: "Asus ROG Strix B350-F Gaming",
+    	c3: "MSI B350 PC MATE",
+    	d4: "MSI B350M PRO-VDH",
+    	e5: "MSI X370 GAMING PRO CARBON"
+    },
+    mainboardIntel:{
+    	a1: "ASRock Z370 Extreme 4",
+    	b2: "ASRock Z370 Pro",
+    	c3: "Asus ROG STRIX Z370-E Gaming",
+    	d4: "Asus ROG STRIX Z370-F Gaming",
+    	e5: "MSI Z370-A PRO"
+    },
+    netzteilBequiet:{
+    	a1: "400 Watt be quiet! System Power 8 Non-Modular 80+",
+    	b2: "500 Watt be quiet! Straight Power 10 CM Modular 80+ Gold",
+    	c3: "600 Watt be quiet! Straight Power 10 CM",
+    	d4: "700 Watt be quiet! Straight Power 10 CM",
+    	e5: "850 Watt be quiet! Dark Power Pro 11 Modular"
+    },
+    ssdSATA:{
+    	a1: "120GB Kingston SSDNow V300",
+    	b2: "128GB Intenso Top III",
+    	c3: "250GB Samsung 850 Evo",
+    	d4: "256GB Samsung 850 PRO",
+    	e5: "500GB Samsung 850 Evo"
+    },
+    ssdM2:{
+    	a1: "1000GB Samsung 960 Pro",
+    	b2: "250GB Samsung 960 Evo",
+    	c3: "500GB Samsung 960 Evo",
+    	d4: "512GB Samsung 960 Pro"
+    },
+    checkintel: true,
+    checkamd: false,
+    checkddr4_2133: true,
+    checkddr4_3466: false,
+    checknvidia: true,
+    checkradeon: false,
+    checkWD: true,
+    checkintel_m: true,
+    checkamd_m: false,
+    checkbequiet: true,
+    checksata: true,
+    checkm2: false,
+
+    content: {
+    	c_1: false,
+    	c_2: false,
+    	c_3: false,
+    	c_4: false,
+    	c_5: false,
+    	c_6: false,
+    	c_7: false,
+
+    },
+
+    preis:{
+    	default: 0,
+    	prozessor: 0,
+    	mainboard: 0,
+    	grafikkarte: 0,
+    	ssd: 0,
+    	hdd: 0,
+    	arbeitsspeicher: 0,
+    	netzteil: 0
+    },
+    bild: {
+    	default: '',
+    	prozessor: '',
+    	mainboard: '',
+    	grafikkarte: '',
+    	ssd: '',
+    	hdd: '',
+    	arbeitsspeicher: '',
+    	netzteil: ''
+    },
+    inhalt: {
+    	default: "",
+    	prozessor: "",
+    	mainboard: "",
+    	grafikkarte: "",
+    	ssd: "",
+    	hdd: "",
+    	arbeitsspeicher: "",
+    	netzteil: ""
+    },
+    blur: false,
+    cover: false
+  },
+    methods:{
+        home: function(){
+            vueLogin.showlogin = false;
+            vueRegister.showregister = false;
+            this.cover = false;
+            this.blur = false;
+            vueListe.showliste = false;
+        },
+        ausrollen: function(n){
+            if(n == 1){
+            if(this.content.c_1){this.content.c_1 = false}
+            else{this.content.c_1 = true}};
+	        if(n == 2){
+            if(this.content.c_2){this.content.c_2 = false}
+            else{this.content.c_2 = true}};
+	        if(n == 3){
+            if(this.content.c_3){this.content.c_3 = false}
+            else{this.content.c_3 = true}};
+	        if(n == 4){
+            if(this.content.c_4){this.content.c_4 = false}
+            else{this.content.c_4 = true}};
+	        if(n == 5){
+            if(this.content.c_5){this.content.c_5 = false}
+            else{this.content.c_5 = true}};
+	        if(n == 6){
+            if(this.content.c_6){this.content.c_6 = false}
+            else{this.content.c_6 = true}};
+	        if(n == 7){
+            if(this.content.c_7){this.content.c_7 = false}
+            else{this.content.c_7 = true}};
+        },
+        anzeigen: function(h, parent, child){
+            var database = firebase.database();
+            var preisref = database.ref('Hardware/' + h + '/' + parent + '/' + child +  '/Preis');
+            var bildref = database.ref('Hardware/' + h + '/' + parent + '/' + child +  '/Bild');
+            preisref.on('value', gotData);
+            bildref.on('value', getData);
+            function gotData(data){
+        	p = data.val();
+             vueInput.inhalt.default = "   Name: " + child + "   Preis: " + p + "€";
+             vueInput.preis.default = p; 
+            };
+            function getData(data){
+        	b = data.val();
+            vueInput.bild.default = b; 
+    
+            if(h == "Prozessor"){vueInput.content.c_1 = false; vueInput.inhalt.prozessor = vueInput.inhalt.default;
+        	vueInput.bild.prozessor = b; vueInput.preis.prozessor = vueInput.preis.default;}
+            if(h == "Arbeitsspeicher"){vueInput.content.c_2 = false; vueInput.inhalt.arbeitsspeicher = vueInput.inhalt.default
+        	vueInput.bild.arbeitsspeicher = b; vueInput.preis.arbeitsspeicher = vueInput.preis.default;}
+            if(h == "Grafikkarte"){vueInput.content.c_3 = false; vueInput.inhalt.grafikkarte = vueInput.inhalt.default
+        	vueInput.bild.grafikkarte = b; vueInput.preis.grafikkarte = vueInput.preis.default;}
+            if(h == "HDD"){vueInput.content.c_4 = false; vueInput.inhalt.hdd = vueInput.inhalt.default
+        	vueInput.bild.hdd = b; vueInput.preis.hdd = vueInput.preis.default;}
+            if(h == "Mainboard"){vueInput.content.c_5 = false; vueInput.inhalt.mainboard = vueInput.inhalt.default
+        	vueInput.bild.mainboard = b; vueInput.preis.mainboard = vueInput.preis.default;}
+            if(h == "Netzteil"){vueInput.content.c_6 = false; vueInput.inhalt.netzteil = vueInput.inhalt.default
+        	vueInput.bild.netzteil = b; vueInput.preis.netzteil = vueInput.preis.default;}
+            if(h == "SSD"){vueInput.content.c_7 = false; vueInput.inhalt.ssd = vueInput.inhalt.default
+        	vueInput.bild.ssd = b; vueInput.preis.ssd = vueInput.preis.default;}
+        
+            };
+    
+        },
+        showIntelDropdown: function(){
+        if(this.checkintel){this.checkintel = false}
+        else this.checkintel = true;
+        if(this.checkamd){this.checkamd = false;}
+        },
+        showAmdDropdown: function(){
+        if(this.checkamd){this.checkamd = false}
+        else this.checkamd = true;
+        if(this.checkintel){this.checkintel = false}
+        },
+	   showDDR4_2133Dropdown: function(){
+	    if(this.checkddr4_2133){this.checkddr4_2133 = false}
+	    else this.checkddr4_2133 = true;
+	    if(this.checkddr4_3466){this.checkddr4_3466 = false}
+	   },
+	   showDDR4_3466Dropdown: function(){
+	    if(this.checkddr4_3466){this.checkddr4_3466 = false}
+	    else this.checkddr4_3466 = true;
+	    if(this.checkddr4_2133){this.checkddr4_2133 = false}
+	   },
+	   showNvidiaDropdown: function(){
+	    if(this.checknvidia){this.checknvidia = false}
+	    else this.checknvidia = true;
+	    if(this.checkradeon){this.checkradeon = false}
+	   },
+	   showRadeonDropdown: function(){
+	    if(this.checkradeon){this.checkradeon = false}
+	    else this.checkradeon = true;
+	    if(this.checknvidia){this.checknvidia = false}
+	   },
+	   showWDDropdown: function(){
+	    if(this.checkWD){this.checkWD = false}
+	    else this.checkWD = true;
+	   },
+	   showIntel_mDropdown: function(){
+	    if(this.checkintel_m){this.checkintel_m = false}
+        else this.checkintel_m = true;
+        if(this.checkamd_m){this.checkamd_m = false;}
+       },
+       showAmd_mDropdown: function(){
+        if(this.checkamd_m){this.checkamd_m = false}
+        else this.checkamd_m = true;
+        if(this.checkintel_m){this.checkintel_m = false}
+       },
+	   showBequietDropdown: function(){
+	    if(this.checkbequiet){this.checkbequiet
+	    = false}
+	    else this.checkbequiet = true;
+	   },
+	   showSATADropdown: function(){
+	    if(this.checksata){this.checksata = false}
+        else this.checksata = true;
+        if(this.checkm2){this.checkm2 = false;}
+       },
+       showM2Dropdown: function(){
+        if(this.checkm2){this.checkm2= false}
+        else this.checkm2 = true;
+        if(this.checksata){this.checksata = false}
+       },
+       showliste: function(){
+            n = vueInput.preis.prozessor + vueInput.preis.arbeitsspeicher + this.preis.grafikkarte + this.preis.hdd + this.preis.mainboard
+             + this.preis.netzteil + this.preis.ssd;
+            vueListe.gesamtwert = n.toFixed(2) + " €";
+            firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+            // User is signed in.
+            vueInput.cover = true;
+            vueInput.blur = true;
+            vueListe.showliste = true;
+            vueListe.bild.prozessor = vueInput.bild.prozessor;
+            vueListe.bild.arbeitsspeicher = vueInput.bild.arbeitsspeicher;
+            vueListe.bild.grafikkarte = vueInput.bild.grafikkarte;
+            vueListe.bild.hdd = vueInput.bild.hdd;
+            vueListe.bild.mainboard = vueInput.bild.mainboard;
+            vueListe.bild.netzteil = vueInput.bild.netzteil;
+            vueListe.bild.ssd = vueInput.bild.ssd;
+ 
+            vueListe.inhalt.prozessor       = vueInput.inhalt.prozessor;
+            vueListe.inhalt.arbeitsspeicher = vueInput.inhalt.arbeitsspeicher;
+            vueListe.inhalt.grafikkarte     = vueInput.inhalt.grafikkarte;
+            vueListe.inhalt.hdd             = vueInput.inhalt.hdd;
+            vueListe.inhalt.mainboard       = vueInput.inhalt.mainboard;
+            vueListe.inhalt.netzteil        = vueInput.inhalt.netzteil;
+            vueListe.inhalt.ssd             = vueInput.inhalt.ssd;}
+            else {
+            // No user is signed in.
+            alert("Sie müssen angemeldet sein um den Gesamtwert berechnen zu können");
+            vueLogin.showlogin = true;
+            vueInput.blur = true;
+            vueInput.cover = true;
+            }
+        });
+        
+    }
+
+  }
+})
+
+var vueListe = new Vue({
+  el: '#liste',
+  data: {
+    showliste:false,
+    bild: {
+        prozessor: '',
+        mainboard: '',
+        grafikkarte: '',
+        ssd: '',
+        hdd: '',
+        arbeitsspeicher: '',
+        netzteil: ''
+    },
+    inhalt:{
+      prozessor: "",
+      arbeitsspeicher: "",
+      grafikkarte: "",
+      hdd: "",
+      mainboard: "",
+      netzteil: "",
+      ssd: "",
+      gesamtwert:""
+        }
+    }
+});     
+</script>
+
+
+</body>
+</html>
